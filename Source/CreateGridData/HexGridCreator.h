@@ -200,6 +200,7 @@ private:
 	void WriteTilesToFile();
 	void WriteTiles(std::ofstream& ofs);
 	void WriteTileLine(std::ofstream& ofs, int32 Index);
+	void WriteIndices(std::ofstream& ofs, int32 Index);
 	void WriteAxialCoord(std::ofstream& ofs, const FStructHexTileData& Data);
 	void WritePosition2D(std::ofstream& ofs, const FStructHexTileData& Data);
 	void WriteNeighbors(std::ofstream& ofs, const FStructHexTileData& Data);

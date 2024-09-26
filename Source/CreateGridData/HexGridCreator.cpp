@@ -116,23 +116,23 @@ void AHexGridCreator::CreateHexGridFlow()
 		SpiralCreateNeighbors();
 		break;
 	case Enum_HexGridWorkflowState::CreateVertices:
-		CreateVertices();
-		break;
+		/*CreateVertices();
+		break;*/
 	case Enum_HexGridWorkflowState::CreateTriangles:
-		CreateTriangles();
-		break;
+		/*CreateTriangles();
+		break;*/
 	case Enum_HexGridWorkflowState::WriteTiles:
 		WriteTilesToFile();
 		break;
 	case Enum_HexGridWorkflowState::WriteTileIndices:
-		WriteTileIndicesToFile();
-		break;
+		/*WriteTileIndicesToFile();
+		break;*/
 	case Enum_HexGridWorkflowState::WriteVertices:
-		WriteVerticesToFile();
-		break;
+		/*WriteVerticesToFile();
+		break;*/
 	case Enum_HexGridWorkflowState::WriteTriangles:
-		WriteTrianglesToFile();
-		break;
+		/*WriteTrianglesToFile();
+		break;*/
 	case Enum_HexGridWorkflowState::WriteParams:
 		WriteParamsToFile();
 		break;
@@ -362,7 +362,8 @@ void AHexGridCreator::SpiralCreateNeighbors()
 	ResetProgress();
 
 	FTimerHandle TimerHandle;
-	WorkflowState = Enum_HexGridWorkflowState::CreateVertices;
+	//WorkflowState = Enum_HexGridWorkflowState::CreateVertices;
+	WorkflowState = Enum_HexGridWorkflowState::WriteTiles;
 	GetWorldTimerManager().SetTimer(TimerHandle, WorkflowDelegate, SpiralCreateNeighborsLoopData.Rate, false);
 	UE_LOG(HexGridCreator, Log, TEXT("Spiral create neighbors done."));
 }
@@ -566,7 +567,8 @@ void AHexGridCreator::WriteTiles(std::ofstream& ofs)
 	}
 	ofs.close();
 	FTimerHandle TimerHandle;
-	WorkflowState = Enum_HexGridWorkflowState::WriteTileIndices;
+	//WorkflowState = Enum_HexGridWorkflowState::WriteTileIndices;
+	WorkflowState = Enum_HexGridWorkflowState::WriteParams;
 	GetWorldTimerManager().SetTimer(TimerHandle, WorkflowDelegate, WriteTilesLoopData.Rate, false);
 	UE_LOG(HexGridCreator, Log, TEXT("Write tiles done."));
 
@@ -575,6 +577,8 @@ void AHexGridCreator::WriteTiles(std::ofstream& ofs)
 void AHexGridCreator::WriteTileLine(std::ofstream& ofs, int32 Index)
 {
 	FStructHexTileData Data = Tiles[Index];
+	WriteIndices(ofs, Index);
+	WritePipeDelimiter(ofs);
 	WriteAxialCoord(ofs, Data);
 	WritePipeDelimiter(ofs);
 	WritePosition2D(ofs, Data);
@@ -596,6 +600,12 @@ void AHexGridCreator::WriteColonDelimiter(std::ofstream& ofs)
 void AHexGridCreator::WriteLineEnd(std::ofstream& ofs)
 {
 	ofs << std::endl;
+}
+
+void AHexGridCreator::WriteIndices(std::ofstream& ofs, int32 Index)
+{
+	FString Str = FString::FromInt(Index);
+	ofs << TCHAR_TO_ANSI(*Str);
 }
 
 void AHexGridCreator::WriteAxialCoord(std::ofstream& ofs, const FStructHexTileData& Data)
