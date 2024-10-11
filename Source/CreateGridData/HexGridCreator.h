@@ -16,12 +16,9 @@ enum class Enum_HexGridWorkflowState : uint8
 	InitWorkflow,
 	SpiralCreateCenter,
 	SpiralCreateNeighbors,
-	CreateVertices,
-	CreateTriangles,
 	WriteTiles,
+	WriteTilesNeighbor,
 	WriteTileIndices,
-	WriteVertices,
-	WriteTriangles,
 	WriteParams,
 	Done,
 	Error
@@ -84,24 +81,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Params", meta = (ClampMin = "1"))
 		int32 GridRange = 10;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Params", meta = (ClampMin = "0.0", ClampMax = "1.0"))
-		float GridLineRatio = 0.1;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Params", meta = (ClampMin = "1"))
-		int32 NeighborRange = 10;
+		int32 NeighborRange = 5;
 
 	//Path
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Path")
 		FString TilesDataPath = FString(TEXT("Data/Tiles.data"));
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Path")
+		FString TilesNeighborPathPrefix = FString(TEXT("Data/N"));
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Path")
 		FString TileIndicesDataPath = FString(TEXT("Data/TileIndices.data"));
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Path")
-		FString VerticesDataPath = FString(TEXT("Data/Vertices.data"));
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Path")
-		FString TrianglesDataPath = FString(TEXT("Data/Triangles.data"));
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Path")
 		FString ParamsDataPath = FString(TEXT("Data/Params.data"));
@@ -116,23 +105,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
 		FStructLoopData SpiralCreateNeighborsLoopData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
-		FStructLoopData CreateVerticesLoopData;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
-		FStructLoopData CreateTrianglesLoopData;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
 		FStructLoopData WriteTilesLoopData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
+		FStructLoopData WriteNeighborsLoopData;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
 		FStructLoopData WriteTileIndicesLoopData;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
-		FStructLoopData WriteVerticesLoopData;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Custom|Loop")
-		FStructLoopData WriteTrianglesLoopData;
-
-	//Render variables
-	UPROPERTY(BlueprintReadOnly)
-		TArray<FVector> Vertices;
-	UPROPERTY(BlueprintReadOnly)
-		TArray<int32> Triangles;
 
 	//Workflow
 	UPROPERTY(BlueprintReadOnly)
@@ -180,16 +157,6 @@ private:
 	void AddTileNeighbor(int32 TileIndex, int32 Radius);
 	void SetTileNeighbor(int32 TileIndex, int32 Radius, int32 DirIndex);
 
-	//Create vertices
-	void CreateVertices();
-	void InitCreateVertices();
-	void CreateTileLineVertices(int32 TileIndex);
-
-	//Create triangles
-	void CreateTriangles();
-	void InitCreateTriangles(TArray<int32>& Arr0, TArray<int32>& Arr1, TArray<int32>& Arr2, TArray<int32>& Arr3);
-	void CreateTileTriangles(int32 VIndexStart, const TArray<int32>& Arr0, const TArray<int32>& Arr1, const TArray<int32>& Arr2, const TArray<int32>& Arr3);
-
 	//For write data
 	void CreateFilePath(const FString& RelPath, FString& FullPath);
 	void WritePipeDelimiter(std::ofstream& ofs);
@@ -203,8 +170,15 @@ private:
 	void WriteIndices(std::ofstream& ofs, int32 Index);
 	void WriteAxialCoord(std::ofstream& ofs, const FStructHexTileData& Data);
 	void WritePosition2D(std::ofstream& ofs, const FStructHexTileData& Data);
-	void WriteNeighbors(std::ofstream& ofs, const FStructHexTileData& Data);
-	void WriteNeighborsInfo(std::ofstream& ofs, const FStructHexTileNeighbors& Neighbors);
+	//void WriteNeighbors(std::ofstream& ofs, const FStructHexTileData& Data);
+	//void WriteNeighborsInfo(std::ofstream& ofs, const FStructHexTileNeighbors& Neighbors);
+
+	//Write neighbors to file
+	void WriteNeighborsToFile();
+	void CreateNeighborPath(FString& NeighborPath, int32 Radius);
+	int32 CalNeighborsWeight(int32 Range);
+	bool WriteNeighbors(std::ofstream& ofs, int32 Radius);
+	void WriteNeighborLine(std::ofstream& ofs, int32 Index, int32 Radius);
 
 	//Write tile indices data to file
 	void WriteTileIndicesToFile();
@@ -212,18 +186,6 @@ private:
 	void WriteTileIndicesLine(std::ofstream& ofs, int32 Index);
 	void WriteIndicesKey(std::ofstream& ofs, const FIntPoint& key);
 	void WriteIndicesValue(std::ofstream& ofs, int32 Index);
-
-	//Write vertices data to file
-	void WriteVerticesToFile();
-	void WriteVertices(std::ofstream& ofs);
-	void WriteVerticesLine(std::ofstream& ofs, int32 Index);
-	void WriteVertex(std::ofstream& ofs, const FVector& Vertex);
-
-	//Write triangles data to file
-	void WriteTrianglesToFile();
-	void WriteTriangles(std::ofstream& ofs);
-	void WriteTrianglesLine(std::ofstream& ofs, int32 Index);
-	void WriteTriangleVertex(std::ofstream& ofs, int32 Data);
 
 	//Write info data to file
 	void WriteParamsToFile();
